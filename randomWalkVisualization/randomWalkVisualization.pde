@@ -14,6 +14,14 @@ int updatePastMillis = millis();
 ArrayList<HashMap<Integer, Integer>> passed = new ArrayList<HashMap<Integer, Integer>>(); 
 int active[] = new int[DEPTH_MAX];
 
+//visualizing variables
+int centerUB, centerLR, centerFB;
+int pastMouseX, pastMouseY;
+float mouseRotX, mouseRotY;
+float viewRotX, viewRotY, viewRotZ;
+
+int startFlag = 0;
+
 void setup() {
   size(1600, 1600, P3D);
 
@@ -28,9 +36,24 @@ void setup() {
 
   //for (int w = 0; w < WIDTH_MAX; w++) if (passed.get(DEPTH_MAX-1).containsKey(w)) print(passed.get(DEPTH_MAX-1).get(w)+ " "); 
   //println("");
+
+  pastMouseX = mouseX;
+  pastMouseY = mouseY;
+
+  //memomemo nice value
+
+  mouseRotX=0.6675885; 
+  mouseRotY=0.0824668; 
+  centerFB=1050; 
+  centerUB=30; 
+  centerLR=0; 
+  viewRotX=0.10000002; 
+  viewRotY=-0.09999999; 
+  viewRotZ=0.70000005; 
 }
 
 void draw() {
+  if(startFlag == 0) return;
   //if (millis() - updatePastMillis > 10) {
   //  updatePastMillis = millis();
   //  randomWalk();
@@ -41,14 +64,23 @@ void draw() {
   background(0);
 
   pushMatrix(); //first stage matrix
-  {  //camera
+  { 
+    ////camera
     ambientLight(63, 31, 31);
     directionalLight(255, 255, 255, -1, 0, 0);
     pointLight(63, 127, 255, mouseX, mouseY, 200);
     spotLight(100, 100, 100, mouseX, mouseY, 200, 0, 0, -1, PI, 2);
-    camera(mouseX, mouseY, 200, width/2.0, height/2.0, 0, 0, 1, 0);  //カメラを定義、マウスの位置でカメラの位置が変化する
+    //camera(mouseX, mouseY, 200, width/2.0, height/2.0, 0, 0, 1, 0);  //カメラを定義、マウスの位置でカメラの位置が変化する
 
-    translate(width / 2, height / 2, -20);
+    //translate(width / 2, height / 2, -20);
+
+    translate(width/2 + centerLR, height/2 + centerUB, centerFB); //move axis by this specified length
+    rotateX(mouseRotX);
+    rotateY(mouseRotY);
+    rotateX(viewRotX);
+    rotateY(viewRotY);
+    rotateZ(viewRotZ);
+
 
     ////small 3D axis
     //pushMatrix();
@@ -67,7 +99,7 @@ void draw() {
     //popMatrix();
 
     //boxes
-    dim = (float)width / WIDTH_MAX / 10;
+    dim = (float)width / WIDTH_MAX / 4;
     //println(dim);
 
     for (int d = 0; d < DEPTH_MAX; d++) {
@@ -90,11 +122,11 @@ void draw() {
         }
 
         translate(
-          map(d * dim, 0, DEPTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
-          //d*dim
+          //map(d * dim, 0, DEPTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
+          d*dim - dim * WIDTH_MAX/4
           , 
-          map(w * dim, 0, WIDTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
-          //w*dim
+          //map(w * dim, 0, WIDTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
+          w*dim - dim * WIDTH_MAX/2
           , 
           dim * val / 2
           ); //positioning
@@ -128,12 +160,107 @@ void randomWalk() {
   active[currentDepth] = currentPos;
 }
 
-void keyPressed() {
+
+void mouseDragged() {
+  if (
+    (0 < mouseX && mouseX < 4 * height/10 && height - 3 * height/10 < mouseY && mouseY < height) 
+    || (width - height/5 < mouseX && mouseX < width)
+    ) {
+  } else {
+    pastMouseX = mouseX;
+    pastMouseY = mouseY;
+
+    mouseRotX = -(pastMouseY - 0.5 * height) / (0.5 * height)  * PI;
+    mouseRotY = (pastMouseX - 0.5 * width) / (0.5 * width)  * PI;
+
+    println(""
+      +" mouseRotX=" + mouseRotX +";"
+      +" mouseRotY=" + mouseRotY +";"
+      +" centerFB="+centerFB +";"
+      +" centerUB="+centerUB +";"
+      +" centerLR="+centerLR +";"
+      +" viewRotX="+viewRotX +";"
+      +" viewRotY="+viewRotY +";"
+      +" viewRotZ="+viewRotZ +";"   
+      +" width=" + width +";"
+      +" height=" + height  +";");
+  }
+}
+
+void keyPressed() {  
   switch(key) {
-  case ' ': 
-    randomWalk();
+    case ' ': 
+    startFlag = 1-startFlag;
     break;
-  default: 
+    //view change
+    //reset
+  case 'R':
+    centerFB = 0;
+    centerUB = 0;
+    centerLR = 0;
+    viewRotX = 0;
+    viewRotY = 0;
+    viewRotZ = 0;
+    break;
+    //depth
+  case 'd':
+    centerFB+= 50;
+    break;
+  case 'D':
+    centerFB-= 50;
+    break;
+    //rotation
+  case 'x':
+    viewRotX += 0.1;
+    break;
+  case 'X':
+    viewRotX -= 0.1;
+    break;
+  case 'c':
+    viewRotY += 0.1;
+    break;
+  case 'C':
+    viewRotY -= 0.1;
+    break;
+  case 'z':
+    viewRotZ += 0.1;
+    break;
+  case 'Z':
+    viewRotZ -= 0.1;
+    break;
+    //case 'S':
+    //  String saveImageFileName = MAIN_PROGRAM_PATH + "/tmp/" + savedSchedulingAlgorithmName + "_ts_" + wn3d_currentTS + "_" + year() + "_" + month() + "_" + day() + "_" +hour() + "_" +minute() + "_" +second() + ".jpg";
+    //  println(saveImageFileName);
+    //  save(saveImageFileName);
+    //  break;
+  case CODED:
+    switch(keyCode) {
+    case UP:
+      centerUB -= 10;
+      break;
+    case DOWN:
+      centerUB += 10;
+      break;
+    case LEFT:
+      centerLR -= 10;
+      break;
+    case RIGHT:
+      centerLR += 10;
+      break;
+    }
+    break;
+  default:
     break;
   }
+  println(""
+    +" mouseRotX=" + mouseRotX +";"
+    +" mouseRotY=" + mouseRotY +";"
+    +" centerFB="+centerFB +";"
+    +" centerUB="+centerUB +";"
+    +" centerLR="+centerLR +";"
+    +" viewRotX="+viewRotX +";"
+    +" viewRotY="+viewRotY +";"
+    +" viewRotZ="+viewRotZ +";"   
+    +" width=" + width +";"
+    +" height=" + height  +";");
 }
