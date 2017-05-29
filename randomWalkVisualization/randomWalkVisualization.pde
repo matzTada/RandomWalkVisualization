@@ -1,11 +1,11 @@
-//2017/1/31 TadaMatz 
-//movie https://youtu.be/9VwcQIYnuX8
-//inspired by Kokuritsu Shin Bijutsukan's 10th aniversary's work
-//NACT Colors insteration by Emmanuelle Moureaux http://www.emmanuelle.jp/
+//2017/5/29 
+//Random Walk Visualization
 
 int cnt = 0;
 int loopCnt = 0;
-float dim = 50;
+float dim = 25;
+
+int side = 10;
 
 ArrayList<MyBox> boxes = new ArrayList<MyBox>();
 
@@ -13,9 +13,9 @@ void setup() {
   size(800, 800, P3D);
   noStroke();
 
-  for (int i = -height/6; i < height/6; i += dim*1) {
-    for (int j = -width/6; j < width/6; j += dim*1) {
-      for (int k = -width/6; k < width/6; k += dim*1) {
+  for (int i = -height/side; i < height/side; i += dim*1) {
+    for (int j = -width/side; j < width/side; j += dim*1) {
+      for (int k = -width/side; k < width/side; k += dim*1) {
         //boxes.add(new MyBox(i, j, k));
         boxes.add(new MyBox(i, j, k, random(-5, 5)));
       }
@@ -37,12 +37,10 @@ void draw() {
   translate(width / 2, height / 2, -20);
   cnt++;
   loopCnt = 0;
+
   for (MyBox tempBox : boxes) {
     pushMatrix();
     translate(tempBox.x, tempBox.y, tempBox.z);
-    //tempBox.update(random(-10, 10));
-    tempBox.update();
-    rotateY(radians(tempBox.angle));
     //box
     noFill();
     stroke(255, 100);
