@@ -3,17 +3,16 @@
 
 int DEPTH_MAX = 100;
 int WIDTH_MAX = DEPTH_MAX * 2 + 1;
+int startPos = WIDTH_MAX / 2;
+int currentPos;
+float dim;
+
 
 //int[][] passed  = new int [WIDTH_MAX][DEPTH_MAX]; //value corresponds numnber of passed Walk
 ArrayList<HashMap<Integer, Integer>> passed = new ArrayList<HashMap<Integer, Integer>>(); 
 
-int startPos = WIDTH_MAX / 2;
-int currentPos = WIDTH_MAX / 2;
-
-int dim = 25;
-
 void setup() {
-  size(800, 800, P3D);
+  size(1600, 1600, P3D);
 
   for (int d = 0; d < DEPTH_MAX; d++) passed.add(new HashMap<Integer, Integer>()); //initialize
 
@@ -28,8 +27,8 @@ void setup() {
     }
   }
 
-  for (int w = 0; w < WIDTH_MAX; w++) if (passed.get(DEPTH_MAX-1).containsKey(w)) print(passed.get(DEPTH_MAX-1).get(w)+ " "); 
-  println("");
+  //for (int w = 0; w < WIDTH_MAX; w++) if (passed.get(DEPTH_MAX-1).containsKey(w)) print(passed.get(DEPTH_MAX-1).get(w)+ " "); 
+  //println("");
 }
 
 void draw() {
@@ -43,7 +42,28 @@ void draw() {
     spotLight(100, 100, 100, mouseX, mouseY, 200, 0, 0, -1, PI, 2);
     camera(mouseX, mouseY, 200, width/2.0, height/2.0, 0, 0, 1, 0);  //カメラを定義、マウスの位置でカメラの位置が変化する
 
-    translate(width / 2, height / 2, -20);
+    translate(width / 2, height / 2, -200);
+
+    //small 3D axis
+    pushMatrix();
+    strokeWeight(0.005 * height);
+    stroke(255, 0, 0);  
+    line(0, 0, 0, width/10, 0, 0);
+    stroke(0, 255, 0);
+    line(0, 0, 0, 0, width/10, 0);
+    stroke(0, 0, 255);
+    line(0, 0, 0, 0, 0, width/10);
+
+    textSize(width/30);
+    text("X", width/10, 0, 0);
+    text("Y", 0, width/10, 0);
+    text("Z", 0, 0, width/10);
+    popMatrix();
+
+    //boxes
+    fill(255);
+    stroke(255, 100);
+    dim = (float)height / WIDTH_MAX / 6;
 
     for (int d = 0; d < DEPTH_MAX; d++) {
       for (int w = 0; w < WIDTH_MAX; w++) {
@@ -51,18 +71,20 @@ void draw() {
         int val = passed.get(d).get(w); 
         pushMatrix();
 
-        translate(map(w, 0, WIDTH_MAX, -width/6, width/6), 
-          map(d, 0, DEPTH_MAX, 0, height/2)); //positioning
-        //box
-        noFill();
-        stroke(255, 100);
-        box(dim*0.7, dim*0.7, dim*0.7 * val);        
-        ////text
-        //textSize(dim);
-        //textMode(SHAPE);        
-        //textAlign(CENTER, CENTER);
-        //fill(255, 200);
-        //text(loopCnt++%10, 0, 0);
+        translate(
+          map(d, 0, DEPTH_MAX, 0, height/6)
+          , 
+          map(w, 0, WIDTH_MAX, -height/6, height/6)
+          , 
+          dim * val
+          ); //positioning
+        box(
+          dim*0.7
+          , 
+          dim*0.7
+          , 
+          dim*0.7 * val
+          );        
         popMatrix();
       }
     }
