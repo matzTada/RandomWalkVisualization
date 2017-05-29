@@ -4,7 +4,8 @@
 int DEPTH_MAX = 100;
 int WIDTH_MAX = DEPTH_MAX * 2 + 1;
 int startPos = WIDTH_MAX / 2;
-int currentPos;
+int currentPos = startPos;
+int currentDepth = 0;
 float dim;
 
 
@@ -16,9 +17,9 @@ void setup() {
 
   for (int d = 0; d < DEPTH_MAX; d++) passed.add(new HashMap<Integer, Integer>()); //initialize
 
-  for (int num = 0; num < 500; num++) {
-    randomWalk();
-  }
+  //for (int num = 0; num < 500; num++) {
+  //  randomWalk();
+  //}
 
   //for (int w = 0; w < WIDTH_MAX; w++) if (passed.get(DEPTH_MAX-1).containsKey(w)) print(passed.get(DEPTH_MAX-1).get(w)+ " "); 
   //println("");
@@ -87,11 +88,23 @@ void draw() {
 }
 
 void randomWalk() {
-  currentPos = startPos;
-  for (int d = 0; d < DEPTH_MAX; d++) {
-    //passed[currentPos][d]++;
-    int pastVal = (passed.get(d).containsKey(currentPos)) ? (pastVal = passed.get(d).get(currentPos)) : 0;
-    passed.get(d).put(currentPos, pastVal + 1);
-    currentPos += (random(0, 1) < 0.5) ? -1 : 1;
+  int pastVal = (passed.get(currentDepth).containsKey(currentPos)) ? (pastVal = passed.get(currentDepth).get(currentPos)) : 0;
+  passed.get(currentDepth).put(currentPos, pastVal + 1);
+  currentPos += (random(0, 1) < 0.5) ? -1 : 1;
+  currentDepth++;
+
+  if (currentDepth >= DEPTH_MAX) {
+    currentPos = startPos;
+    currentDepth = 0;
+  }
+}
+
+void keyPressed() {
+  switch(key) {
+  case ' ': 
+    randomWalk();
+    break;
+  default: 
+    break;
   }
 }
