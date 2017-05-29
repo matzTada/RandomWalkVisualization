@@ -68,6 +68,7 @@ void draw() {
 
     //boxes
     dim = (float)width / WIDTH_MAX / 10;
+    //println(dim);
 
     for (int d = 0; d < DEPTH_MAX; d++) {
       for (int w = 0; w < WIDTH_MAX; w++) {
@@ -76,12 +77,12 @@ void draw() {
         pushMatrix();
 
         if (active[d] == w) {
-          if(val == 1){ //first time
-          fill(255, 0, 0);
-          stroke(255, 0, 0, 100);
-          }else{//second or later time
-          fill(0,0,255);
-          stroke(0,0,255,100);
+          if (val == 1) { //first time
+            fill(255, 0, 0);
+            stroke(255, 0, 0, 100);
+          } else {//second or later time
+            fill(0, 0, 255);
+            stroke(0, 0, 255, 100);
           }
         } else {
           fill(255);
@@ -89,9 +90,11 @@ void draw() {
         }
 
         translate(
-          map(d, 0, DEPTH_MAX, -WIDTH_MAX * dim, WIDTH_MAX *dim)
+          map(d * dim, 0, DEPTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
+          //d*dim
           , 
-          map(w, 0, WIDTH_MAX, -WIDTH_MAX * dim, WIDTH_MAX *dim)
+          map(w * dim, 0, WIDTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
+          //w*dim
           , 
           dim * val / 2
           ); //positioning
