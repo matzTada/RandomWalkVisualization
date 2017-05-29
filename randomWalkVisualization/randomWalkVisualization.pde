@@ -16,15 +16,8 @@ void setup() {
 
   for (int d = 0; d < DEPTH_MAX; d++) passed.add(new HashMap<Integer, Integer>()); //initialize
 
-  for (int num = 0; num < 300; num++) {
-    currentPos = startPos;
-    for (int d = 0; d < DEPTH_MAX; d++) {
-      //passed[currentPos][d]++;
-      int pastVal = 0;
-      if (passed.get(d).containsKey(currentPos)) pastVal = passed.get(d).get(currentPos);
-      passed.get(d).put(currentPos, pastVal + 1);
-      currentPos += (random(0, 1) < 0.5) ? -1 : 1;
-    }
+  for (int num = 0; num < 500; num++) {
+    randomWalk();
   }
 
   //for (int w = 0; w < WIDTH_MAX; w++) if (passed.get(DEPTH_MAX-1).containsKey(w)) print(passed.get(DEPTH_MAX-1).get(w)+ " "); 
@@ -42,7 +35,7 @@ void draw() {
     spotLight(100, 100, 100, mouseX, mouseY, 200, 0, 0, -1, PI, 2);
     camera(mouseX, mouseY, 200, width/2.0, height/2.0, 0, 0, 1, 0);  //カメラを定義、マウスの位置でカメラの位置が変化する
 
-    translate(width / 2, height / 2, -200);
+    translate(width / 2, height / 2, -20);
 
     //small 3D axis
     pushMatrix();
@@ -72,23 +65,33 @@ void draw() {
         pushMatrix();
 
         translate(
-          map(d, 0, DEPTH_MAX, 0, height/6)
+          map(d, 0, DEPTH_MAX, -height/6, height/6)
           , 
           map(w, 0, WIDTH_MAX, -height/6, height/6)
           , 
-          dim * val
+          dim * val / 2
           ); //positioning
         box(
-          dim*0.7
+          dim
           , 
-          dim*0.7
+          dim
           , 
-          dim*0.7 * val
+          dim * val
           );        
         popMatrix();
       }
     }
 
     popMatrix(); //first stage matrix
+  }
+}
+
+void randomWalk() {
+  currentPos = startPos;
+  for (int d = 0; d < DEPTH_MAX; d++) {
+    //passed[currentPos][d]++;
+    int pastVal = (passed.get(d).containsKey(currentPos)) ? (pastVal = passed.get(d).get(currentPos)) : 0;
+    passed.get(d).put(currentPos, pastVal + 1);
+    currentPos += (random(0, 1) < 0.5) ? -1 : 1;
   }
 }
