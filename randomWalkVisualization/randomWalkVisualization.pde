@@ -1,26 +1,8 @@
 //2017/5/29 
 //Random Walk Visualization
 
-int cnt = 0;
-int loopCnt = 0;
-float dim = 25;
-
-int side = 10;
-
-ArrayList<MyBox> boxes = new ArrayList<MyBox>();
-
 void setup() {
   size(800, 800, P3D);
-  noStroke();
-
-  for (int i = -height/side; i < height/side; i += dim*1) {
-    for (int j = -width/side; j < width/side; j += dim*1) {
-      for (int k = -width/side; k < width/side; k += dim*1) {
-        //boxes.add(new MyBox(i, j, k));
-        boxes.add(new MyBox(i, j, k, random(-5, 5)));
-      }
-    }
-  }
 }
 
 void draw() {
@@ -35,81 +17,20 @@ void draw() {
   camera(mouseX, mouseY, 200, width/2.0, height/2.0, 0, 0, 1, 0);  //カメラを定義、マウスの位置でカメラの位置が変化する
 
   translate(width / 2, height / 2, -20);
-  cnt++;
-  loopCnt = 0;
 
-  for (MyBox tempBox : boxes) {
-    pushMatrix();
-    translate(tempBox.x, tempBox.y, tempBox.z);
-    //box
-    noFill();
-    stroke(255, 100);
-    box(dim*0.7, dim*0.8, dim*0.1);        
-    //text
-    textSize(dim);
-    textMode(SHAPE);        
-    textAlign(CENTER, CENTER);
-    fill(255, 200);
-    text(loopCnt++%10, 0, 0);
-    popMatrix();
-  }
-
+  pushMatrix();
+  translate(tempBox.x, tempBox.y, tempBox.z);
+  //box
+  noFill();
+  stroke(255, 100);
+  box(dim*0.7, dim*0.8, dim*0.1);        
+  ////text
+  //textSize(dim);
+  //textMode(SHAPE);        
+  //textAlign(CENTER, CENTER);
+  //fill(255, 200);
+  //text(loopCnt++%10, 0, 0);
   popMatrix();
 
-  //get average angleIncrease
-  float aveAngleIncrease = 0;
-  for (MyBox tempBox : boxes) {
-    aveAngleIncrease += tempBox.angleIncrease;
-  }
-  aveAngleIncrease /= boxes.size();
-  fill(255);  
-  text(aveAngleIncrease, width * 7 / 8, height * 7 / 8);
-}
-
-class MyBox {
-  float x, y, z;
-  float angle;
-  float angleIncrease;
-
-  MyBox(float _x, float _y, float _z) {
-    x = _x;
-    y = _y;
-    z = _z;
-    angle = 0;
-  }
-
-  MyBox(float _x, float _y, float _z, float _angleIncrease) {
-    x = _x;
-    y = _y;
-    z = _z;
-    angle = 0;
-    angleIncrease = _angleIncrease;
-  }
-
-  void update() {
-    angle+= angleIncrease;
-  }
-
-  void update(float _angle) {
-    angle += _angle;
-  }
-
-  void updateAngleIncrease(float _increase) {
-    angleIncrease += _increase;
-  }
-}
-
-void keyPressed() {
-  switch(key) {
-  case 'a':
-    for (MyBox tempBox : boxes) {
-      tempBox.updateAngleIncrease(2);
-    }
-    break;
-  case 'A':
-    for (MyBox tempBox : boxes) {
-      tempBox.updateAngleIncrease(-2);
-    }  
-    break;
-  }
+  popMatrix();
 }
