@@ -30,6 +30,10 @@ void setup() {
     active[d] = WIDTH_MAX;
   }
 
+  for (int d = 0; d < DEPTH_MAX * 10; d++) {
+    randomWalk();
+  }
+
   //initialize view variables
   pastMouseX = mouseX;
   pastMouseY = mouseY;
@@ -46,6 +50,7 @@ void setup() {
 }
 
 void draw() {
+  //calculating
   if (startFlag == 1) { 
     //if (millis() - updatePastMillis > 10) {
     //  updatePastMillis = millis();
@@ -57,6 +62,13 @@ void draw() {
   //drawing functions  
   background(0);
 
+  //2D histogram
+  HashMap<Integer, Integer> histData = passed.get(currentDepth);
+
+  histogram(histData, WIDTH_MAX * 3 / 8, WIDTH_MAX * 5 / 8, 0, 100, 0, 0, 400, 400, color(0, 255, 0));
+
+
+  //3D random walk vision
   pushMatrix(); //first stage matrix
   { 
     //lighting
@@ -72,33 +84,34 @@ void draw() {
     rotateY(mouseRotY);
     rotateX(viewRotX);
     rotateY(viewRotY);
-    rotateZ(viewRotZ);
+    rotateZ(viewRotZ);  
 
     //boxes
     dim = (float)width / WIDTH_MAX / 4;
 
     for (int d = 0; d < DEPTH_MAX; d++) {
       for (int w = 0; w < WIDTH_MAX; w++) {
-        if (!passed.get(d).containsKey(w)) continue;
-        int val = passed.get(d).get(w); 
+        if (passed.get(d).containsKey(w)) {
+          int val = passed.get(d).get(w); 
 
-        pushMatrix();
-        {
-          //color according to the number of passed walk
-          if (active[d] == w && val == 1) {//first time
-            fill(255, 0, 0);
-            stroke(255, 0, 0, 100);
-          } else if (active[d] == w && val > 1) {//second or later time
-            fill(0, 0, 255);
-            stroke(0, 0, 255, 100);
-          } else {
-            fill(255);
-            stroke(255, 100);
+          pushMatrix();
+          {
+            //color according to the number of passed walk
+            if (active[d] == w && val == 1) {//first time
+              fill(255, 0, 0);
+              stroke(255, 0, 0, 100);
+            } else if (active[d] == w && val > 1) {//second or later time
+              fill(0, 0, 255);
+              stroke(0, 0, 255, 100);
+            } else {
+              fill(255);
+              stroke(255, 100);
+            }
+            translate(dim * (d - DEPTH_MAX/2), dim * (w - WIDTH_MAX/2), dim * val / 2); 
+            box(dim, dim, dim * val);
           }
-          translate(dim * (d - DEPTH_MAX/2), dim * (w - WIDTH_MAX/2), dim * val / 2); 
-          box(dim, dim, dim * val);
+          popMatrix();
         }
-        popMatrix();
       }
     }
 
@@ -121,6 +134,21 @@ void randomWalk() {
   active[currentDepth] = currentPos;
 }
 
+void histogram(HashMap<Integer, Integer> vs, int vwMin, int vwMax, int vhMin, int vhMax, int viewX, int viewY, int viewWidth, int viewHeight, color c) {
+  float strapWidth = (float)viewWidth/(vwMax - vwMin);
+  println(strapWidth);
+  fill(c);
+  stroke(255, 150);
+  for (int x = vwMin; x < vwMax; x++) { 
+    if (vs.containsKey(x)) {
+      int val = vs.get(x);
+
+      rect(viewX + strapWidth * map(x, vwMin, vwMax, 0, vwMax - vwMin), viewY + viewHeight - map(val, vhMin, vhMax, 0, viewHeight), strapWidth, map(val, vhMin, vhMax, 0, viewHeight));
+    }
+  }
+  noStroke();
+  noFill();
+}
 
 void mouseDragged() {
   if (
