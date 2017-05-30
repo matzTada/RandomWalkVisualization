@@ -10,8 +10,7 @@ float dim;
 
 int updatePastMillis = millis();
 
-//int[][] passed  = new int [WIDTH_MAX][DEPTH_MAX]; //value corresponds numnber of passed Walk
-ArrayList<HashMap<Integer, Integer>> passed = new ArrayList<HashMap<Integer, Integer>>(); 
+ArrayList<HashMap<Integer, Integer>> passed = new ArrayList<HashMap<Integer, Integer>>(); //value corresponds numnber of passed Walk
 int active[] = new int[DEPTH_MAX];
 
 //visualizing variables
@@ -20,28 +19,22 @@ int pastMouseX, pastMouseY;
 float mouseRotX, mouseRotY;
 float viewRotX, viewRotY, viewRotZ;
 
-int startFlag = 0;
+int startFlag = 1;
 
 void setup() {
   size(1600, 1600, P3D);
 
+  //initialize core variables
   for (int d = 0; d < DEPTH_MAX; d++) {
-    passed.add(new HashMap<Integer, Integer>()); //initialize
+    passed.add(new HashMap<Integer, Integer>());
     active[d] = WIDTH_MAX;
   }
 
-  //for (int num = 0; num < 500; num++) {
-  //  randomWalk();
-  //}
-
-  //for (int w = 0; w < WIDTH_MAX; w++) if (passed.get(DEPTH_MAX-1).containsKey(w)) print(passed.get(DEPTH_MAX-1).get(w)+ " "); 
-  //println("");
-
+  //initialize view variables
   pastMouseX = mouseX;
   pastMouseY = mouseY;
 
   //memomemo nice value
-
   mouseRotX=0.6675885; 
   mouseRotY=0.0824668; 
   centerFB=1050; 
@@ -49,31 +42,31 @@ void setup() {
   centerLR=0; 
   viewRotX=0.10000002; 
   viewRotY=-0.09999999; 
-  viewRotZ=0.70000005; 
+  viewRotZ=0.70000005;
 }
 
 void draw() {
-  if(startFlag == 0) return;
-  //if (millis() - updatePastMillis > 10) {
-  //  updatePastMillis = millis();
-  //  randomWalk();
-  //}
-  randomWalk();
+  if (startFlag == 1) { 
+    //if (millis() - updatePastMillis > 10) {
+    //  updatePastMillis = millis();
+    //  randomWalk();
+    //}
+    randomWalk();
+  }
 
   //drawing functions  
   background(0);
 
   pushMatrix(); //first stage matrix
   { 
-    ////camera
+    //lighting
     ambientLight(63, 31, 31);
     directionalLight(255, 255, 255, -1, 0, 0);
     pointLight(63, 127, 255, mouseX, mouseY, 200);
     spotLight(100, 100, 100, mouseX, mouseY, 200, 0, 0, -1, PI, 2);
-    //camera(mouseX, mouseY, 200, width/2.0, height/2.0, 0, 0, 1, 0);  //カメラを定義、マウスの位置でカメラの位置が変化する
+    //camera(mouseX, mouseY, 200, width/2.0, height/2.0, 0, 0, 1, 0);  
 
-    //translate(width / 2, height / 2, -20);
-
+    //positioning variables
     translate(width/2 + centerLR, height/2 + centerUB, centerFB); //move axis by this specified length
     rotateX(mouseRotX);
     rotateY(mouseRotY);
@@ -81,62 +74,30 @@ void draw() {
     rotateY(viewRotY);
     rotateZ(viewRotZ);
 
-
-    ////small 3D axis
-    //pushMatrix();
-    //strokeWeight(0.005 * height);
-    //stroke(255, 0, 0);  
-    //line(0, 0, 0, width/10, 0, 0);
-    //stroke(0, 255, 0);
-    //line(0, 0, 0, 0, width/10, 0);
-    //stroke(0, 0, 255);
-    //line(0, 0, 0, 0, 0, width/10);
-
-    //textSize(width/30);
-    //text("X", width/10, 0, 0);
-    //text("Y", 0, width/10, 0);
-    //text("Z", 0, 0, width/10);
-    //popMatrix();
-
     //boxes
     dim = (float)width / WIDTH_MAX / 4;
-    //println(dim);
 
     for (int d = 0; d < DEPTH_MAX; d++) {
       for (int w = 0; w < WIDTH_MAX; w++) {
         if (!passed.get(d).containsKey(w)) continue;
         int val = passed.get(d).get(w); 
-        pushMatrix();
 
-        if (active[d] == w) {
-          if (val == 1) { //first time
+        pushMatrix();
+        {
+          //color according to the number of passed walk
+          if (active[d] == w && val == 1) {//first time
             fill(255, 0, 0);
             stroke(255, 0, 0, 100);
-          } else {//second or later time
+          } else if (active[d] == w && val > 1) {//second or later time
             fill(0, 0, 255);
             stroke(0, 0, 255, 100);
+          } else {
+            fill(255);
+            stroke(255, 100);
           }
-        } else {
-          fill(255);
-          stroke(255, 100);
+          translate(dim * (d - DEPTH_MAX/2), dim * (w - WIDTH_MAX/2), dim * val / 2); 
+          box(dim, dim, dim * val);
         }
-
-        translate(
-          //map(d * dim, 0, DEPTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
-          d*dim - dim * WIDTH_MAX/4
-          , 
-          //map(w * dim, 0, WIDTH_MAX * dim, -WIDTH_MAX/2 * dim, WIDTH_MAX/2 * dim)
-          w*dim - dim * WIDTH_MAX/2
-          , 
-          dim * val / 2
-          ); //positioning
-        box(
-          dim
-          , 
-          dim
-          , 
-          dim * val
-          );        
         popMatrix();
       }
     }
@@ -189,7 +150,7 @@ void mouseDragged() {
 
 void keyPressed() {  
   switch(key) {
-    case ' ': 
+  case ' ': 
     startFlag = 1-startFlag;
     break;
     //view change
