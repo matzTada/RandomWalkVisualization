@@ -206,10 +206,11 @@ void keyPressed() {
   case ' ': 
     startFlag = 1-startFlag;
     break;
-  case ENTER: 
-    for (int d = 0; d < DEPTH_MAX * 100; d++) {
-      randomWalk();
-    }
+  case '1': 
+    for (int d = 0; d < DEPTH_MAX * 10; d++) randomWalk();
+    break;
+  case '2': 
+    for (int d = 0; d < DEPTH_MAX * 100; d++) randomWalk();
     break;
     //view change
     //reset
