@@ -21,6 +21,8 @@ float viewRotX, viewRotY, viewRotZ;
 
 int startFlag = 1;
 
+ArrayList<CrossSection> cs = new ArrayList<CrossSection>();
+
 void setup() {
   size(1600, 1600, P3D);
 
@@ -30,7 +32,7 @@ void setup() {
     active[d] = WIDTH_MAX;
   }
 
-  for (int d = 0; d < DEPTH_MAX * 10; d++) {
+  for (int d = 0; d < DEPTH_MAX * 100; d++) {
     randomWalk();
   }
 
@@ -47,6 +49,11 @@ void setup() {
   viewRotX=0.10000002; 
   viewRotY=-0.09999999; 
   viewRotZ=0.70000005;
+
+  cs.add(new CrossSection(DEPTH_MAX*0/4, color(255, 165, 0)));
+  cs.add(new CrossSection(DEPTH_MAX*3/4, color(0, 255, 255)));
+  cs.add(new CrossSection(DEPTH_MAX*2/4, color(0, 255, 0)));
+  cs.add(new CrossSection(DEPTH_MAX*1/4, color(255, 255, 0)));
 }
 
 void draw() {
@@ -63,10 +70,25 @@ void draw() {
   background(0);
 
   //2D histogram
-  HashMap<Integer, Integer> histData = passed.get(currentDepth);
+  for (int i = 0; i < cs.size(); i++) {    
+    HashMap<Integer, Integer> histData = passed.get(cs.get(i).getPos(currentDepth));
+    histogram(histData, WIDTH_MAX * 3 / 8, WIDTH_MAX * 5 / 8, 0, 100, 0, i * 400, 400, 400, cs.get(i).c);
+  }
 
-  histogram(histData, WIDTH_MAX * 3 / 8, WIDTH_MAX * 5 / 8, 0, 100, 0, 0, 400, 400, color(0, 255, 0));
+  //int hist2Depth = currentDepth + DEPTH_MAX/2;
+  //if (hist2Depth >= DEPTH_MAX) hist2Depth -= DEPTH_MAX;
+  //HashMap<Integer, Integer> hist2Data = passed.get(hist2Depth);
+  //histogram(hist2Data, WIDTH_MAX * 3 / 8, WIDTH_MAX * 5 / 8, 0, 100, 0, 400, 400, 400, color(255, 255, 0));
 
+  //int hist3Depth = currentDepth + DEPTH_MAX/4;
+  //if (hist3Depth >= DEPTH_MAX) hist3Depth -= DEPTH_MAX;
+  //HashMap<Integer, Integer> hist3Data = passed.get(hist3Depth);
+  //histogram(hist3Data, WIDTH_MAX * 3 / 8, WIDTH_MAX * 5 / 8, 0, 100, 0, 800, 400, 400, color(255, 165, 0));
+
+  //int hist4Depth = currentDepth + DEPTH_MAX*3/4;
+  //if (hist4Depth >= DEPTH_MAX) hist4Depth -= DEPTH_MAX;
+  //HashMap<Integer, Integer> hist4Data = passed.get(hist4Depth);
+  //histogram(hist4Data, WIDTH_MAX * 3 / 8, WIDTH_MAX * 5 / 8, 0, 100, 0, 1200, 400, 400, color(0, 255, 255));
 
   //3D random walk vision
   pushMatrix(); //first stage matrix
@@ -103,10 +125,12 @@ void draw() {
             } else if (active[d] == w && val > 1) {//second or later time
               fill(0, 0, 255);
               stroke(0, 0, 255, 100);
-            } else {
+            } 
+            else {
               fill(255);
               stroke(255, 100);
             }
+            colorCrossSection(d, currentDepth, cs);
             translate(dim * (d - DEPTH_MAX/2), dim * (w - WIDTH_MAX/2), dim * val / 2); 
             box(dim, dim, dim * val);
           }
@@ -119,6 +143,29 @@ void draw() {
   }
 
   //println(frameRate);
+}
+
+class CrossSection {
+  int pos;
+  color c;
+  CrossSection(int _pos, color _c) {
+    pos = _pos;
+    c = _c;
+  }
+  int getPos(int currentD) {
+    int r = currentD + pos;
+    if (r >= DEPTH_MAX) r -= DEPTH_MAX;
+    return r;
+  }
+};
+
+void colorCrossSection(int cellD, int currentD, ArrayList<CrossSection> sections) {
+  for (CrossSection tempS : sections) {
+    if (cellD == tempS.getPos(currentD)) {
+      fill(tempS.c);
+      stroke(tempS.c);
+    }
+  }
 }
 
 void randomWalk() {
@@ -136,13 +183,11 @@ void randomWalk() {
 
 void histogram(HashMap<Integer, Integer> vs, int vwMin, int vwMax, int vhMin, int vhMax, int viewX, int viewY, int viewWidth, int viewHeight, color c) {
   float strapWidth = (float)viewWidth/(vwMax - vwMin);
-  println(strapWidth);
   fill(c);
   stroke(255, 150);
   for (int x = vwMin; x < vwMax; x++) { 
     if (vs.containsKey(x)) {
       int val = vs.get(x);
-
       rect(viewX + strapWidth * map(x, vwMin, vwMax, 0, vwMax - vwMin), viewY + viewHeight - map(val, vhMin, vhMax, 0, viewHeight), strapWidth, map(val, vhMin, vhMax, 0, viewHeight));
     }
   }
